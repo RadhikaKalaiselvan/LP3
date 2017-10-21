@@ -60,13 +60,9 @@ public class LP3 {
      */  
     public static int directedMST(Graph g, Vertex start, List<Edge> dmst) {
     	DMSTGraph dg=new DMSTGraph(g);
+    	
     	 dg.directedMST(dg,start,dmst);
-    	 
     	 dg.disableVertex(g.getVertex(1));
-    	 
-    	 
-    	//dg.disableVertex(g.getVertex(1));
-    	 Vertex n=dg.createNewVertex(null);
     	 Edge x=null;
     	 int i=0;
     	 for(Vertex v: dg){
@@ -76,27 +72,13 @@ public class LP3 {
     				 dg.disableEdge(e);
     				 System.out.println(" after disable edge .. "+e);
     				 dg.gh.getEdge(e).setTempWeight(10);
-    			     dg.createNewEdge(v,n,e);
     				 i++;
     			 }
     			 break;
     		 }
     	 }
-    	
-    	 
-    	 
-    	 dg.enableEdge(x);
-    	
-    	
-    	
-    	/* System.out.println(" after disable.. 3,1");
-    	 dg.directedMST(dg,start,dmst);
-    	 dg.disableVertex(g.getVertex(2));
-    	 dg.disableVertex(g.getVertex(4));
-    	 System.out.println(" after disable.. all");*/
     	 dg.directedMST(dg,start,dmst);
     	 
-    	 //check strongly connected components
     	 GraphUtil gu=new GraphUtil(dg);
     	 ArrayList<LinkedList<Vertex>> comp=gu.stronglyConnectedComponents();
     	 int k=0;

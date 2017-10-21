@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import cs6301.g23.Graph.Edge;
+
 
 public class DMSTGraph extends Graph {
 	GraphHash<DMSTVertex,DMSTEdge> gh=null;
@@ -67,16 +69,13 @@ public class DMSTGraph extends Graph {
 	}
 	
    public Edge createNewEdge(Vertex source,Vertex dest,Edge originalEdge){
-	   System.out.println("create edge called "+gh.edgeMap.size());
 	    DMSTEdge dmstOrgEdg=gh.getEdge(originalEdge);
-	    //System.out.println("New edge weight "+dmstOrgEdg.tempWeight);
 	    Edge e=new Edge(source,dest,dmstOrgEdg.tempWeight);
 	    DMSTVertex x1 = getVertex(source);
 		DMSTVertex x2 = getVertex(dest);
 		DMSTEdge dedge=new DMSTEdge(x1, x2,dmstOrgEdg.tempWeight);
 		x1.dadj.add(e);
 		gh.putEdge(e,dedge);
-		// System.out.println("create edge end "+gh.edgeMap.size());
 		return e;
    }
    
@@ -114,15 +113,21 @@ public class DMSTGraph extends Graph {
 		}
 
 		@Override
-		public Iterator<Edge> iterator() { return new DMSTVertexIterator(this); }
+		public Iterator<Edge> iterator() { return new DMSTVertexIterator(this,false); }
+		
+		public Iterator<Edge> reverseIterator() { return new DMSTVertexIterator(this,true); }
 
 		class DMSTVertexIterator implements Iterator<Edge> {
 			Edge cur;
 			Iterator<Edge> it;
 			boolean ready;
 
-			DMSTVertexIterator(DMSTVertex u) {
-				this.it = u.dadj.iterator();
+			DMSTVertexIterator(DMSTVertex u,boolean isrev) {
+				if(isrev){
+					this.it = u.revAdj.iterator();
+				}else {
+					this.it = u.dadj.iterator();
+				}
 				ready = false;
 			}
 
