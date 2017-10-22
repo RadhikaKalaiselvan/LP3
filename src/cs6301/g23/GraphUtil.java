@@ -5,12 +5,13 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import cs6301.g23.DMSTGraph.DMSTEdge;
 import cs6301.g23.Graph.Edge;
 import cs6301.g23.Graph.Vertex;
 import cs6301.g23.GraphUtil.*;
 
 public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
-	Graph g;
+	DMSTGraph g;
 	public static int time;
     public static int cno;
     public static int topNum;
@@ -19,7 +20,7 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
     ArrayList<LinkedList<Vertex>> compList;
 	GraphUtil(Graph g){
 		super(g);
-		this.g=g;
+		this.g=(DMSTGraph)g;
 		graphSize=g.n;
 		 decFinList=new LinkedList<Graph.Vertex>();
 		 this.compList=new ArrayList<LinkedList<Vertex>>();
@@ -48,9 +49,7 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 
 	}
 	
-	 boolean seen(Vertex u) {
-			return getVertex(u).seen;
-		    }
+	
 	 
 	 Graph.Vertex getParent(Vertex u) {
 			return getVertex(u).parent;
@@ -64,7 +63,7 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 		    }
 	 
 	public ArrayList<LinkedList<Vertex>> stronglyConnectedComponents() { 
-		//System.out.println(" size "+vertexMap.size());
+		System.out.println(" strongly ");
 		LinkedList<Vertex> result=new LinkedList<Vertex>(dfs(this.g.iterator(),false));
 		this.decFinList.clear();
 		reinitialize();
@@ -114,6 +113,10 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 		Iterator<Edge> eit=(rev)?source.reverseIterator():source.iterator();
 		while(eit.hasNext()){
 			Graph.Edge e=(Edge) eit.next();
+			DMSTEdge de=g.gh.getEdge(e);
+			if(!de.isZeroEdge()){
+				continue;
+			}
 			Graph.Vertex adjNode=e.otherEnd(source);
 			GraphUtilVertex v=getVertex(adjNode);
 			if(!v.isSeen()){

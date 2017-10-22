@@ -132,6 +132,7 @@ public class DMSTGraph extends Graph {
 			}
 
 			public boolean hasNext() {
+				System.out.println("DMST it");
 				if(ready) { 
 					return true; 
 				}

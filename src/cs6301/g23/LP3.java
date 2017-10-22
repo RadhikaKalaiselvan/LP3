@@ -61,7 +61,7 @@ public class LP3 {
     public static int directedMST(Graph g, Vertex start, List<Edge> dmst) {
     	DMSTGraph dg=new DMSTGraph(g);
     	
-    	 dg.directedMST(dg,start,dmst);
+    	/* dg.directedMST(dg,start,dmst);
     	 dg.disableVertex(g.getVertex(1));
     	 Edge x=null;
     	 int i=0;
@@ -78,6 +78,7 @@ public class LP3 {
     		 }
     	 }
     	 dg.directedMST(dg,start,dmst);
+    	 */
     	 
     	 GraphUtil gu=new GraphUtil(dg);
     	 ArrayList<LinkedList<Vertex>> comp=gu.stronglyConnectedComponents();
