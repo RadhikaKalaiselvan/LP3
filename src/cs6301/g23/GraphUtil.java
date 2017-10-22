@@ -1,6 +1,7 @@
 package cs6301.g23;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,13 +17,13 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
     public static int topNum;
     int graphSize;
     LinkedList<Graph.Vertex> decFinList;
-    ArrayList<LinkedList<Vertex>> compList;
+    ArrayList<HashSet<Vertex>> compList;
 	GraphUtil(Graph g){
 		super(g);
 		this.g=g;
 		graphSize=g.n;
 		 decFinList=new LinkedList<Graph.Vertex>();
-		 this.compList=new ArrayList<LinkedList<Vertex>>();
+		 this.compList=new ArrayList<HashSet<Vertex>>();
 		 for(Graph.Vertex u: g) {
 			    putVertex(u, new GraphUtilVertex(u));
 			}
@@ -63,7 +64,7 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 			}
 		    }
 	 
-	public ArrayList<LinkedList<Vertex>> stronglyConnectedComponents() { 
+	public ArrayList<HashSet<Vertex>> stronglyConnectedComponents() { 
 		//System.out.println(" size "+vertexMap.size());
 		LinkedList<Vertex> result=new LinkedList<Vertex>(dfs(this.g.iterator(),false));
 		this.decFinList.clear();
@@ -84,7 +85,7 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 			//System.out.println(" vertex in util "+uVert);
 			if(!u.seen){
 				cno++;
-				LinkedList<Vertex> lv=new LinkedList<Vertex>();
+				HashSet<Vertex> lv=new HashSet<Vertex>();
 				DfsVisit(uVert,lv,rev);
 				compList.add(lv);
 			}
@@ -92,32 +93,33 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 		return decFinList;
 	}
 
-	public void DfsVisit(Graph.Vertex source,LinkedList<Vertex> lv,boolean rev){
+	public void DfsVisit(Graph.Vertex source,HashSet<Vertex> lv,boolean rev){
 		/*
 		 * DFSVisit(u)
-		 * u.seen ← true 
-		 * u.dis ← ++time 
-		 * u.cno ← cno 
+		 * u.seen â†� true 
+		 * u.dis â†� ++time 
+		 * u.cno â†� cno 
 		 * for each edge (u,v) going out of u 
 		 *  do if ! v.seen then
-		 *  v.parent ← u 
+		 *  v.parent â†� u 
 		 *  DFSVisit(v)
-		 * u.fin ← ++time 
-		 * u.top ← topNum-- 
+		 * u.fin â†� ++time 
+		 * u.top â†� topNum-- 
 		 * decFinList.addFirst(u)
 		 */	
-		
+		System.out.println("dfs called for "+source);
 		GraphUtilVertex u=getVertex(source);
 		u.setSeen(true);
 		lv.add(source);
 		++time;
 		Iterator<Edge> eit=(rev)?source.reverseIterator():source.iterator();
 		while(eit.hasNext()){
-			Graph.Edge e=(Edge) eit.next();
+			Graph.Edge e= eit.next();
 			Graph.Vertex adjNode=e.otherEnd(source);
 			GraphUtilVertex v=getVertex(adjNode);
 			if(!v.isSeen()){
 				v.parent=source;
+				System.out.println("inside call "+adjNode);
 	            DfsVisit(adjNode,lv,rev);
 			}
 			++time;
@@ -126,3 +128,22 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 		decFinList.addFirst(source);
 	}
 	}
+
+
+/**
+ * 1
+*8 13
+*1 2 5 
+*2 3 3
+*3 4 12 
+*4 5 1 
+*6 5 8 
+*6 7 7 
+*7 8 10 
+*1 8 11
+*8 2 6
+*7 2 2
+*2 6 13 
+*3 6 9 
+*5 3 4
+**/
