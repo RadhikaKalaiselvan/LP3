@@ -7,6 +7,8 @@ package cs6301.g23;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -30,7 +32,7 @@ public class LP3 {
         }
 
 	int start = in.nextInt();  // root node of the MST
-        Graph g = Graph.readDirectedGraph(in);
+    Graph g = Graph.readDirectedGraph(in);
 	Vertex startVertex = g.getVertex(start);
 	List<Edge> dmst = new ArrayList<>();
 
@@ -59,37 +61,29 @@ public class LP3 {
      *  The function should return the total weight of the MST it found.
      */  
     public static int directedMST(Graph g, Vertex start, List<Edge> dmst) {
-    	DMSTGraph dg=new DMSTGraph(g);
     	
-    	/* dg.directedMST(dg,start,dmst);
-    	 dg.disableVertex(g.getVertex(1));
-    	 Edge x=null;
-    	 int i=0;
-    	 for(Vertex v: dg){
-    		 for(Edge e:v){
-    			 if(i==0){
-    				 x=e;
-    				 dg.disableEdge(e);
-    				 System.out.println(" after disable edge .. "+e);
-    				 dg.gh.getEdge(e).setTempWeight(10);
-    				 i++;
-    			 }
-    			 break;
-    		 }
-    	 }
-    	 dg.directedMST(dg,start,dmst);
-    	 */
-    	 
+    	DMSTGraph dg=new DMSTGraph(g); 
     	 GraphUtil gu=new GraphUtil(dg);
-    	 ArrayList<LinkedList<Vertex>> comp=gu.stronglyConnectedComponents();
-    	 int k=0;
-    	 for(LinkedList<Vertex> lv: comp){
-    		System.out.println("key "+k);
-    		for(Vertex v:lv){
-    			System.out.println(" "+v);
-    		}
-    		k++;
-    	 }
+    	 MSTUtil m = new MSTUtil(dg);
+//    	 ArrayList<HashSet<Vertex>> comp=gu.stronglyConnectedComponents();
+//    	 int k=0;
+//    	 for(HashSet<Vertex> lv: comp){
+//    		System.out.println("key "+k);
+//    		for(Vertex v:lv){
+//    			System.out.println(" "+v);
+//    		}
+//    		k++;
+//    	 }
+//    	 Vertex v = dg.getVertex(5);
+//    	 for(Edge e:v){
+//    		 System.out.println("outgoing Edge"+e);
+//    	 }
+//    	 Iterator<Edge> it=v.reverseIterator();
+//    	 while(it.hasNext()){
+//    		 System.out.println("incoming edge"+it.next());
+//    	 }
+    	 m.mst();
+    	 
     	 return 0;	
     }
 }

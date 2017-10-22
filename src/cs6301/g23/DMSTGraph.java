@@ -1,10 +1,12 @@
 package cs6301.g23;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import cs6301.g23.Graph.Edge;
+import cs6301.g23.Graph.Vertex;
 
 
 public class DMSTGraph extends Graph {
@@ -59,7 +61,7 @@ public class DMSTGraph extends Graph {
 		dmste.disabled=false;
 	}
 	
-	public Vertex createNewVertex(List<Vertex> comp){
+	public Vertex createNewVertex(HashSet<Vertex> comp){
 		Vertex v=new Vertex(vertexCount++);
 		DMSTVertex dvertx=new DMSTVertex(v);
 		dvertx.setComp(comp);
@@ -83,7 +85,7 @@ public class DMSTGraph extends Graph {
 		boolean disabled;
 		List<Edge> dadj;
 		int delta;
-		List<Vertex> comp;
+		HashSet<Vertex> comp;
 		public DMSTVertex(Vertex u) {
 			super(u);
 			dadj=new LinkedList<Edge>();
@@ -104,18 +106,19 @@ public class DMSTGraph extends Graph {
 			this.delta = delta;
 		}
 
-		public List<Vertex> getComp() {
+		public HashSet<Vertex> getComp() {
 			return comp;
 		}
 
-		public void setComp(List<Vertex> comp) {
-			this.comp = comp;
+		public void setComp(HashSet<Vertex> comp2) {
+			this.comp = comp2;
 		}
 
 		@Override
 		public Iterator<Edge> iterator() { return new DMSTVertexIterator(this,false); }
 		
 		public Iterator<Edge> reverseIterator() { return new DMSTVertexIterator(this,true); }
+
 
 		class DMSTVertexIterator implements Iterator<Edge> {
 			Edge cur;
@@ -201,6 +204,7 @@ public class DMSTGraph extends Graph {
 		}
 	}
 
+	@Override
 	public Iterator<Vertex> iterator() { return new DMSTGraphIterator(this); }
 
 	
