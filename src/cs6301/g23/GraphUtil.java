@@ -29,6 +29,11 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 			    putVertex(u, new GraphUtilVertex(u));
 			}
 	}
+	
+	void addVertex(Vertex u){
+		putVertex(u, new GraphUtilVertex(u));
+	}
+	
 	static class GraphUtilVertex {
 		boolean seen;
 		Vertex parent;
@@ -37,7 +42,7 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 		    parent = null;
 		}
 		
-		void reinitialize() {
+		void reinitializeVertex() {
 		    seen = false;
 		    parent = null;
 		}
@@ -58,23 +63,24 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 	 	 
 	 void reinitialize() {
 			for(Vertex u: g) {
+//				System.out.println("Reint called for "+u);
 			    GraphUtilVertex bu = getVertex(u);
-			    bu.reinitialize();
+			    bu.reinitializeVertex();
 			}
 		    }
 	 
 
 	public ArrayList<HashSet<Vertex>> stronglyConnectedComponents() { 
-
-		LinkedList<Vertex> result=new LinkedList<Vertex>(dfs(this.g.iterator(),false));
+		reinitialize();
+		LinkedList<Vertex> result=new LinkedList<Vertex>(dfs(this.g.iterator(),false, false));
 		this.decFinList.clear();
 		reinitialize();
 		this.compList.clear();
-		dfs(result.iterator(),true);
+		dfs(result.iterator(),true,false);
 		return this.compList;
 	}
 	
-	public LinkedList<Graph.Vertex> dfs(Iterator<Vertex> it,boolean rev){
+	public LinkedList<Graph.Vertex> dfs(Iterator<Vertex> it,boolean rev, boolean runOnAllEdges){
 		topNum=g.size();
 		time=0;
 		cno=0;
@@ -82,18 +88,18 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 		while(it.hasNext()){
 			Vertex uVert=it.next();
 			GraphUtilVertex u=getVertex(uVert);
-			//System.out.println(" vertex in util "+uVert);
+			System.out.println(" vertex in util "+uVert+" seen "+u.seen);
 			if(!u.seen){
 				cno++;
 				HashSet<Vertex> lv=new HashSet<Vertex>();
-				DfsVisit(uVert,lv,rev);
+				dfsVisit(uVert,lv,rev,runOnAllEdges);
 				compList.add(lv);
 			}
 		}
 		return decFinList;
 	}
 
-	public void DfsVisit(Graph.Vertex source,HashSet<Vertex> lv,boolean rev){
+	public void dfsVisit(Graph.Vertex source,HashSet<Vertex> lv,boolean rev, boolean runOnAllEdges){
 		/*
 		 * DFSVisit(u)
 		 * u.seen â†� true 
@@ -110,27 +116,29 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 		System.out.println("dfs called for "+source);
 		GraphUtilVertex u=getVertex(source);
 		u.setSeen(true);
-		lv.add(source);
+		
 		++time;
 		Iterator<Edge> eit=(rev)?source.reverseIterator():source.iterator();
 		while(eit.hasNext()){
 
 			Graph.Edge e=(Edge) eit.next();
 			DMSTEdge de=g.gh.getEdge(e);
-			if(!de.isZeroEdge()){
+			if(!runOnAllEdges && !de.isZeroEdge()){
 				continue;
 			}
-
+			System.out.println("zero edge "+e);
 			Graph.Vertex adjNode=e.otherEnd(source);
 			GraphUtilVertex v=getVertex(adjNode);
+			System.out.println("vertex "+adjNode+"seen "+v.seen);
 			if(!v.isSeen()){
 				v.parent=source;
 				System.out.println("inside call "+adjNode);
-	            DfsVisit(adjNode,lv,rev);
+	            dfsVisit(adjNode,lv,rev, runOnAllEdges);
 			}
 			++time;
 			topNum--;
 		}
+		lv.add(source);
 		decFinList.addFirst(source);
 	}
 	}

@@ -13,6 +13,7 @@ public class DMSTGraph extends Graph {
 	GraphHash<DMSTVertex,DMSTEdge> gh=null;
 	DMSTVertex[] dv;
 	int vertexCount=0;
+	int enabledVertexCount =0;
 	
 	public DMSTGraph(Graph g) {
 		super(g);
@@ -24,6 +25,7 @@ public class DMSTGraph extends Graph {
 			dv[u.getName()] = dvertx;
 			gh.putVertex(u,dvertx);
 		}
+		enabledVertexCount = g.size();
 		for(Vertex u: g) {
 			for(Edge e: u) {
 				Vertex v = e.otherEnd(u);
@@ -43,11 +45,13 @@ public class DMSTGraph extends Graph {
 	public void disableVertex(Vertex u){
 		DMSTVertex dmstv=gh.getVertex(u);
 		dmstv.disabled=true;
+		enabledVertexCount--;
 	}
 
 	public void enableVertex(Vertex u){
 		DMSTVertex dmstv=gh.getVertex(u);
 		dmstv.disabled=false;
+		enabledVertexCount++;
 	}
 
 
@@ -67,6 +71,7 @@ public class DMSTGraph extends Graph {
 		dvertx.setComp(comp);
 		dv[v.getName()] = dvertx;
 		gh.putVertex(v,dvertx);
+		enabledVertexCount++;
 		return v;
 	}
 	
@@ -77,6 +82,7 @@ public class DMSTGraph extends Graph {
 		DMSTVertex x2 = getVertex(dest);
 		DMSTEdge dedge=new DMSTEdge(x1, x2,dmstOrgEdg.tempWeight);
 		x1.dadj.add(e);
+		x2.revAdj.add(e);
 		gh.putEdge(e,dedge);
 		return e;
    }
@@ -115,7 +121,9 @@ public class DMSTGraph extends Graph {
 		}
 
 		@Override
-		public Iterator<Edge> iterator() { return new DMSTVertexIterator(this,false); }
+		public Iterator<Edge> iterator() { 
+//			System.out.println("DMST edge it");
+			return new DMSTVertexIterator(this,false); }
 		
 		public Iterator<Edge> reverseIterator() { return new DMSTVertexIterator(this,true); }
 
@@ -135,7 +143,7 @@ public class DMSTGraph extends Graph {
 			}
 
 			public boolean hasNext() {
-				System.out.println("DMST it");
+//				System.out.println("DMST it");
 				if(ready) { 
 					return true; 
 				}
@@ -143,7 +151,8 @@ public class DMSTGraph extends Graph {
 					return false; 
 				}
 				cur = it.next();	
-				DMSTEdge de=gh.getEdge(cur);		
+				DMSTEdge de=gh.getEdge(cur);
+//				System.out.println(" iterator : edge"+cur+" "+de.isDisabled());
 				while(de.isDisabled() && it.hasNext()) {
 					cur = it.next();
 					de=gh.getEdge(cur);
@@ -200,9 +209,15 @@ public class DMSTGraph extends Graph {
 		}
 
 		boolean isZeroEdge(){
-			return (this.weight==0)?true:false;
+			return (this.tempWeight==0)?true:false;
 		}
 	}
+	
+//	public void printKeySet(Graph g){
+//		for(Vertex v:g){
+//			System.out.println("vertex : "+v+", disabled:"+gh.getVertex(v).disabled);
+//		}
+//	}
 
 	@Override
 	public Iterator<Vertex> iterator() { return new DMSTGraphIterator(this); }
