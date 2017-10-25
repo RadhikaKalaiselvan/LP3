@@ -63,7 +63,6 @@ public class LP3 {
     public static int directedMST(Graph g, Vertex start, List<Edge> dmst) {
     	
     	DMSTGraph dg=new DMSTGraph(g); 
-    	 GraphUtil gu=new GraphUtil(dg);
     	 MSTUtil m = new MSTUtil(dg);
 //    	 ArrayList<HashSet<Vertex>> comp=gu.stronglyConnectedComponents();
 //    	 int k=0;

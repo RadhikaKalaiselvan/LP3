@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 
 import cs6301.g23.DMSTGraph.DMSTEdge;
@@ -21,17 +22,9 @@ public class MSTUtil {
 	}
 
 	public void mst(){
-
-
-
-
-		//		gUtil.DfsVisit(source, dfsVisited, false);
-
 		DMSTVertex dVertex;
 		int tempWeight=0;
-		int i=1;
-
-		while(true && i<=3){
+		while(true){
 			for(Vertex v:g){
 				dVertex = g.getVertex(v);
 				int min = getMinWeight(v);
@@ -45,28 +38,19 @@ public class MSTUtil {
 					System.out.println("Edge "+e+" weight "+tempWeight);
 				}
 			}
-			//			toggleEdge(true);
 
 			ArrayList<HashSet<Vertex>> scc = gUtil.stronglyConnectedComponents();
-			int k=0;
-			for(HashSet<Vertex> lv: scc){
-				System.out.println("key "+k);
-				for(Vertex v:lv){
-					System.out.println(" "+v);
-				}
-				k++;
-			}
-
-
-			//			System.out.println("inside scc shrink call");
+//			int k=0;
+//			for(HashSet<Vertex> lv: scc){
+//				System.out.println("key "+k);
+//				for(Vertex v:lv){
+//					System.out.println(" "+v);
+//				}
+//				k++;
+//			}
 			for(HashSet<Vertex> l:scc){
 				if(l.size()>1){
-					//					System.out.println("size of hashset"+l.size());
-					//					System.out.println("Before");
-					//					g.printKeySet(g);
 					shrinkComponent(l);
-					//					System.out.println("After");
-					//					g.printKeySet(g);
 				}
 			}
 			HashSet<Graph.Vertex> dfsVisited = new HashSet<Graph.Vertex>();
@@ -76,9 +60,8 @@ public class MSTUtil {
 				System.out.println("scc is 1");
 				break;
 			}
-			i++;
 		}
-
+		expand(g.size());
 	}
 
 	public void shrinkComponent(HashSet<Vertex> shrinkComp){
@@ -93,7 +76,6 @@ public class MSTUtil {
 			while(outgoing.hasNext()){ //disable outgoing edges
 
 				Edge e = outgoing.next();
-				System.out.println("edge* "+e);
 				Vertex dest = e.toVertex();
 				if(!shrinkComp.contains(dest)){
 					if(dest_edge.containsKey(dest)){
@@ -104,7 +86,6 @@ public class MSTUtil {
 					}
 					else{
 						dest_edge.put(dest, e);
-						//						System.out.println("outgoing :key "+dest+"value "+e);
 					}
 
 				}
@@ -122,23 +103,13 @@ public class MSTUtil {
 					}
 					else{
 						source_edge.put(source, e);
-						//						System.out.println("incoming :key "+source+"value "+e);
 					}
 
 				}
 			}
 			g.disableVertex(t);  //disabling the vertex
 			System.out.println("disabled"+t);
-			//			System.out.println("enabled vert "+t+"dmst "+g.gh.getVertex(t).isDisabled());
 		}	
-		for(Vertex vert:dest_edge.keySet()){
-			Edge newEdge = g.createNewEdge(v, vert, dest_edge.get(vert));
-			//			System.out.println("new edge "+newEdge+" weight "+g.gh.getEdge(newEdge).getTempWeight());
-		}
-		for(Vertex vert:source_edge.keySet()){
-			Edge newEdge = g.createNewEdge(vert, v, source_edge.get(vert));
-			//			System.out.println("new edge "+newEdge+" weight "+g.gh.getEdge(newEdge).getTempWeight());
-		}
 		System.out.println("Created"+v);
 	}
 
@@ -159,41 +130,42 @@ public class MSTUtil {
 			HashSet<Graph.Vertex> dfsVisited = new HashSet<Graph.Vertex>();
 			gUtil.reinitialize();
 			gUtil.dfsVisit(v, dfsVisited, false,true);
-			System.out.println("source "+v+" dfs size"+dfsVisited.size()+" enable "+g.enabledVertexCount);
-			for(Vertex u:dfsVisited){
-				System.out.println("vertices "+u);
-			}
-			
 			if(dfsVisited.size()==g.enabledVertexCount){
 				source = v;
 				break;
 			}
+			
 		}
-		System.out.println("returning source "+source);
+		gUtil.reinitialize();
 		return source;
 	}
-
-	public void toggleEdge(boolean disableEdge){
-
-		for(Map.Entry<Edge, DMSTEdge> entry:g.gh.edgeMap.entrySet()){
-			if(disableEdge == true)
-				g.disableEdge(entry.getKey());
-			else
-				g.enableEdge(entry.getKey());
+	
+	public void expand(int k){
+		gUtil.reinitialize();
+		Vertex source = g.getVertex(k);
+		if(k==g.size()){
+			source = getSource();
 		}
-	}
-
-	public Edge getMinEdge(Vertex v){
-		int min = Integer.MAX_VALUE;
-		Edge temp = null;
-		Iterator<Edge> revIt = v.reverseIterator();
-		while(revIt.hasNext()){
-			Edge e = revIt.next();
-			if(e.weight < min){
-				temp = e;
-				break;
+		gUtil.dfsVisit(source, new HashSet<Graph.Vertex>(),	false,false);
+		Vertex lastNode = gUtil.decFinList.getLast();
+		Vertex child = lastNode;
+		while(child != source){
+			Vertex parent = gUtil.getParent(child);
+			Vertex dmstParent = g.gh.getVertex(parent);
+			for(Edge e:dmstParent){
+				if(e.toVertex() == child){
+					DMSTVertex dmstChild = g.gh.getVertex(child);
+					if(!dmstChild.foundIncoming){
+						dmstChild.foundIncoming = true;
+						dmstChild.mstEdge = e;
+					}
+					break;
+				}
+				
 			}
+			child = parent;
 		}
-		return temp;
+		expand(k-1);
+		
 	}
 }

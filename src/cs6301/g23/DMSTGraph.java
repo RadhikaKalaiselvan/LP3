@@ -69,6 +69,7 @@ public class DMSTGraph extends Graph {
 		Vertex v=new Vertex(vertexCount++);
 		DMSTVertex dvertx=new DMSTVertex(v);
 		dvertx.setComp(comp);
+		dvertx.isSuperNode = true;
 		dv[v.getName()] = dvertx;
 		gh.putVertex(v,dvertx);
 		enabledVertexCount++;
@@ -91,9 +92,15 @@ public class DMSTGraph extends Graph {
 		boolean disabled;
 		List<Edge> dadj;
 		int delta;
+		Edge mstEdge;
+		boolean isSuperNode;
+		boolean foundIncoming;
 		HashSet<Vertex> comp;
 		public DMSTVertex(Vertex u) {
 			super(u);
+			foundIncoming = false;
+			isSuperNode = false;
+			mstEdge = null;
 			dadj=new LinkedList<Edge>();
 		}
 		public List<Edge> getDadj() {
@@ -122,7 +129,7 @@ public class DMSTGraph extends Graph {
 
 		@Override
 		public Iterator<Edge> iterator() { 
-//			System.out.println("DMST edge it");
+			System.out.println("DMST edge it");
 			return new DMSTVertexIterator(this,false); }
 		
 		public Iterator<Edge> reverseIterator() { return new DMSTVertexIterator(this,true); }
@@ -213,11 +220,14 @@ public class DMSTGraph extends Graph {
 		}
 	}
 	
-//	public void printKeySet(Graph g){
-//		for(Vertex v:g){
-//			System.out.println("vertex : "+v+", disabled:"+gh.getVertex(v).disabled);
-//		}
-//	}
+	public void printKeySet(Graph g){
+		for(Vertex v:g){
+			System.out.println("vertex : "+v+", disabled:"+gh.getVertex(v).disabled);
+			for(Edge e:v){
+				System.out.println("e :      "+e);   
+			}
+		}
+	}
 
 	@Override
 	public Iterator<Vertex> iterator() { return new DMSTGraphIterator(this); }

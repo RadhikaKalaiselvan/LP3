@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import cs6301.g23.DMSTGraph.DMSTEdge;
+import cs6301.g23.DMSTGraph.DMSTVertex;
 import cs6301.g23.Graph.Edge;
 import cs6301.g23.Graph.Vertex;
 import cs6301.g23.GraphUtil.*;
@@ -67,7 +68,8 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 			    GraphUtilVertex bu = getVertex(u);
 			    bu.reinitializeVertex();
 			}
-		    }
+		this.decFinList.clear();	
+	 }
 	 
 
 	public ArrayList<HashSet<Vertex>> stronglyConnectedComponents() { 
@@ -88,7 +90,7 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 		while(it.hasNext()){
 			Vertex uVert=it.next();
 			GraphUtilVertex u=getVertex(uVert);
-			System.out.println(" vertex in util "+uVert+" seen "+u.seen);
+//			System.out.println(" vertex in util "+uVert+" seen "+u.seen);
 			if(!u.seen){
 				cno++;
 				HashSet<Vertex> lv=new HashSet<Vertex>();
@@ -113,10 +115,14 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 		 * u.top â†� topNum-- 
 		 * decFinList.addFirst(u)
 		 */	
-		System.out.println("dfs called for "+source);
+//		System.out.println("Is DMSTGRaph in dfs?");
+//		System.out.println(g instanceof DMSTGraph);
+//		System.out.println("dfs called for "+source);
+//		source.iterator();
+//		System.out.println("---end--");
 		GraphUtilVertex u=getVertex(source);
 		u.setSeen(true);
-		
+		source=g.gh.getVertex(source);
 		++time;
 		Iterator<Edge> eit=(rev)?source.reverseIterator():source.iterator();
 		while(eit.hasNext()){
