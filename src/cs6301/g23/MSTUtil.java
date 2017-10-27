@@ -16,9 +16,11 @@ public class MSTUtil {
 
 	DMSTGraph g;
 	GraphUtil gUtil;
+	LinkedList<Vertex> graphImage; 
 	MSTUtil(DMSTGraph g){
 		this.g = g;
 		gUtil = new GraphUtil(g);
+		graphImage=new LinkedList<Vertex>();
 	}
 
 	public void mst(){
@@ -35,19 +37,19 @@ public class MSTUtil {
 					Edge e = edgeIt.next();
 					tempWeight = g.gh.getEdge(e).getTempWeight() - min;
 					g.gh.getEdge(e).setTempWeight(tempWeight);
-					System.out.println("Edge "+e+" weight "+tempWeight);
+					//System.out.println("Edge "+e+" weight "+tempWeight);
 				}
 			}
 
 			ArrayList<HashSet<Vertex>> scc = gUtil.stronglyConnectedComponents();
-//			int k=0;
-//			for(HashSet<Vertex> lv: scc){
-//				System.out.println("key "+k);
-//				for(Vertex v:lv){
-//					System.out.println(" "+v);
-//				}
-//				k++;
-//			}
+			int k=0;
+			for(HashSet<Vertex> lv: scc){
+				System.out.println("key "+k);
+				for(Vertex v:lv){
+					System.out.println(" "+v);
+				}
+				k++;
+			}
 			for(HashSet<Vertex> l:scc){
 				if(l.size()>1){
 					shrinkComponent(l);
@@ -61,7 +63,8 @@ public class MSTUtil {
 				break;
 			}
 		}
-		expand(g.size());
+		System.out.println("Last super node "+g.getLastSuperNode());
+		expand();
 	}
 
 	public void shrinkComponent(HashSet<Vertex> shrinkComp){
@@ -110,6 +113,15 @@ public class MSTUtil {
 			g.disableVertex(t);  //disabling the vertex
 			System.out.println("disabled"+t);
 		}	
+		
+		for(Vertex vert:dest_edge.keySet()){
+			 		g.createNewEdge(v, vert, dest_edge.get(vert));
+			 			//			System.out.println("new edge "+newEdge+" weight "+g.gh.getEdge(newEdge).getTempWeight());
+			 		}
+			 		for(Vertex vert:source_edge.keySet()){
+			 		g.createNewEdge(vert, v, source_edge.get(vert));
+			 			//			System.out.println("new edge "+newEdge+" weight "+g.gh.getEdge(newEdge).getTempWeight());
+			 		}
 		System.out.println("Created"+v);
 	}
 
@@ -125,6 +137,7 @@ public class MSTUtil {
 	}
 
 	public Vertex getSource(){
+		
 		Vertex source = null;
 		for(Vertex v:g){
 			HashSet<Graph.Vertex> dfsVisited = new HashSet<Graph.Vertex>();
@@ -137,35 +150,123 @@ public class MSTUtil {
 			
 		}
 		gUtil.reinitialize();
+		System.out.println("source "+source);
 		return source;
 	}
 	
-	public void expand(int k){
-		gUtil.reinitialize();
-		Vertex source = g.getVertex(k);
-		if(k==g.size()){
-			source = getSource();
-		}
-		gUtil.dfsVisit(source, new HashSet<Graph.Vertex>(),	false,false);
-		Vertex lastNode = gUtil.decFinList.getLast();
-		Vertex child = lastNode;
-		while(child != source){
-			Vertex parent = gUtil.getParent(child);
-			Vertex dmstParent = g.gh.getVertex(parent);
-			for(Edge e:dmstParent){
-				if(e.toVertex() == child){
-					DMSTVertex dmstChild = g.gh.getVertex(child);
-					if(!dmstChild.foundIncoming){
-						dmstChild.foundIncoming = true;
-						dmstChild.mstEdge = e;
-					}
-					break;
+	public Vertex takeGraphImage(HashSet<Vertex> hv){
+		Vertex source=null;
+		for(Vertex v:g){
+			if(!hv.contains(v)){
+				graphImage.add(v);
+			}else {
+				//if the vertex is in complist and has foundincoming edge then it is the source
+				if(g.gh.getVertex(v).foundIncoming){
+					source=v;
 				}
-				
 			}
-			child = parent;
 		}
-		expand(k-1);
-		
+		return source;
 	}
+	
+	
+	public void toggleNodes(boolean disable){
+		for(Vertex v:graphImage){
+			DMSTVertex dVert=g.gh.getVertex(v);
+			dVert.disabled=disable;
+		}
+	}
+	
+	public void disableAllEdgesOfComp(HashSet<Vertex> hv){
+		for(Vertex v:hv)
+		{
+			System.out.println("Processing "+v);
+			for(Edge e:v.adj){
+				if(!(hv.contains(e.to) && hv.contains(e.from))){
+					System.out.println("disabled "+e);
+				g.gh.getEdge(e).disabled=true;
+				}
+			}
+			for(Edge ed:v.revAdj){
+				if(!(hv.contains(ed.to) && hv.contains(ed.from))){
+				g.gh.getEdge(ed).disabled=true;
+				System.out.println("disabled "+ed);
+				}
+			}
+		}
+	}
+	
+	public void expand(){
+		expandHelper(g.getLastSuperNode());
+	}
+	
+	public void expandHelper(Vertex superNode){
+	System.out.println("Super node "+superNode);
+		DMSTVertex dmstSuperNode=g.gh.getVertex(superNode);
+		HashSet<Vertex> hv=dmstSuperNode.getComp();
+		if(hv==null|| hv.size()==0 || !g.gh.getVertex(superNode).isSuperNode){
+			return;
+		}
+		disableAllEdgesOfComp(hv);
+		
+		LinkedList<Edge> dfsPath=gUtil.getPath();
+		for(Edge e:dfsPath){
+			DMSTEdge de=g.gh.getEdge(e);
+			Edge originalEdgeImage=de.originalEdge;
+			System.out.println(" Processing  "+e+" org "+originalEdgeImage);
+			if(originalEdgeImage!=null){
+			g.gh.getEdge(originalEdgeImage).disabled=false;
+			System.out.println("enabled "+e);
+			
+			Vertex toVert=originalEdgeImage.to;
+			DMSTVertex dtoVertex=g.gh.getVertex(toVert);
+			dtoVertex.disabled=false;
+			
+			if(!dtoVertex.foundIncoming){
+			dtoVertex.foundIncoming=true;
+			dtoVertex.mstEdge=e;
+			}
+			
+			g.gh.getVertex(originalEdgeImage.from).disabled=false;
+			}
+		}
+		
+		g.gh.getVertex(superNode).disabled=true;
+		
+		g.printKeySet(g);
+		
+		Vertex source=takeGraphImage(hv);
+		toggleNodes(true);
+		
+		gUtil.reinitialize();
+		gUtil.dfsVisit(source,new HashSet<Vertex>(),false,false);
+		
+		disableAllEdgesWithinComp(hv);
+		for(Edge e:gUtil.getPath())
+		{
+			g.gh.getEdge(e).disabled=false;
+			Vertex toVert=e.to;
+			DMSTVertex dtoVertex=g.gh.getVertex(toVert);
+			if(!dtoVertex.foundIncoming){
+				dtoVertex.foundIncoming=true;
+				dtoVertex.mstEdge=e;
+				}
+		}
+		toggleNodes(false);
+		
+		g.printKeySet(g);
+		expandHelper(source);
+	}
+
+
+void disableAllEdgesWithinComp(HashSet<Vertex> hv){
+	Iterator<Vertex> it=hv.iterator();
+	while(it.hasNext()){
+		Vertex dv=g.gh.getVertex(it.next());
+		for(Edge e:dv){
+			DMSTEdge ed=g.gh.getEdge(e);
+			ed.disabled=true;
+		}
+	}
+}
 }

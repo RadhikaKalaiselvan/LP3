@@ -12,6 +12,7 @@ import cs6301.g23.Graph.Vertex;
 public class DMSTGraph extends Graph {
 	GraphHash<DMSTVertex,DMSTEdge> gh=null;
 	DMSTVertex[] dv;
+	Vertex lastSuperNode;
 	int vertexCount=0;
 	int enabledVertexCount =0;
 	
@@ -64,7 +65,9 @@ public class DMSTGraph extends Graph {
 		DMSTEdge dmste=gh.getEdge(u);
 		dmste.disabled=false;
 	}
-	
+	public Vertex getLastSuperNode(){
+		return lastSuperNode;
+	}
 	public Vertex createNewVertex(HashSet<Vertex> comp){
 		Vertex v=new Vertex(vertexCount++);
 		DMSTVertex dvertx=new DMSTVertex(v);
@@ -73,6 +76,7 @@ public class DMSTGraph extends Graph {
 		dv[v.getName()] = dvertx;
 		gh.putVertex(v,dvertx);
 		enabledVertexCount++;
+		lastSuperNode=v;
 		return v;
 	}
 	
@@ -82,6 +86,7 @@ public class DMSTGraph extends Graph {
 	    DMSTVertex x1 = getVertex(source);
 		DMSTVertex x2 = getVertex(dest);
 		DMSTEdge dedge=new DMSTEdge(x1, x2,dmstOrgEdg.tempWeight);
+		dedge.originalEdge=originalEdge;
 		x1.dadj.add(e);
 		x2.revAdj.add(e);
 		gh.putEdge(e,dedge);
@@ -96,6 +101,7 @@ public class DMSTGraph extends Graph {
 		boolean isSuperNode;
 		boolean foundIncoming;
 		HashSet<Vertex> comp;
+		
 		public DMSTVertex(Vertex u) {
 			super(u);
 			foundIncoming = false;
@@ -129,7 +135,7 @@ public class DMSTGraph extends Graph {
 
 		@Override
 		public Iterator<Edge> iterator() { 
-			System.out.println("DMST edge it");
+			//System.out.println("DMST edge it");
 			return new DMSTVertexIterator(this,false); }
 		
 		public Iterator<Edge> reverseIterator() { return new DMSTVertexIterator(this,true); }

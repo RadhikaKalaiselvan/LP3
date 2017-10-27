@@ -20,12 +20,14 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
     int graphSize;
     LinkedList<Graph.Vertex> decFinList;
     ArrayList<HashSet<Vertex>> compList;
+    LinkedList<Graph.Edge> path;
 	GraphUtil(Graph g){
 		super(g);
 		this.g=(DMSTGraph)g;
 		graphSize=g.n;
 		 decFinList=new LinkedList<Graph.Vertex>();
 		 this.compList=new ArrayList<HashSet<Vertex>>();
+		 this.path=new LinkedList<Graph.Edge>();
 		 for(Graph.Vertex u: g) {
 			    putVertex(u, new GraphUtilVertex(u));
 			}
@@ -68,6 +70,7 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 			    GraphUtilVertex bu = getVertex(u);
 			    bu.reinitializeVertex();
 			}
+		this.path.clear();
 		this.decFinList.clear();	
 	 }
 	 
@@ -100,6 +103,10 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 		}
 		return decFinList;
 	}
+	
+	public LinkedList<Edge> getPath(){
+		return path;
+	}
 
 	public void dfsVisit(Graph.Vertex source,HashSet<Vertex> lv,boolean rev, boolean runOnAllEdges){
 		/*
@@ -115,7 +122,7 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 		 * u.top â†� topNum-- 
 		 * decFinList.addFirst(u)
 		 */	
-//		System.out.println("Is DMSTGRaph in dfs?");
+	//	System.out.println("Is DMSTGRaph in dfs?");
 //		System.out.println(g instanceof DMSTGraph);
 //		System.out.println("dfs called for "+source);
 //		source.iterator();
@@ -128,17 +135,18 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 		while(eit.hasNext()){
 
 			Graph.Edge e=(Edge) eit.next();
+			//System.out.println("edge "+e);
 			DMSTEdge de=g.gh.getEdge(e);
 			if(!runOnAllEdges && !de.isZeroEdge()){
 				continue;
 			}
-			System.out.println("zero edge "+e);
-			Graph.Vertex adjNode=e.otherEnd(source);
+			Graph.Vertex adjNode=g.gh.getVertex(e.otherEnd(source));
 			GraphUtilVertex v=getVertex(adjNode);
-			System.out.println("vertex "+adjNode+"seen "+v.seen);
+			//System.out.println("vertex "+adjNode+"seen "+v.seen);
 			if(!v.isSeen()){
+				path.add(e);
 				v.parent=source;
-				System.out.println("inside call "+adjNode);
+			//	System.out.println("inside call "+adjNode);
 	            dfsVisit(adjNode,lv,rev, runOnAllEdges);
 			}
 			++time;
