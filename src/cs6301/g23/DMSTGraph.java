@@ -15,6 +15,7 @@ public class DMSTGraph extends Graph {
 	Vertex lastSuperNode;
 	int vertexCount=0;
 	int enabledVertexCount =0;
+	Vertex source=null;
 	
 	public DMSTGraph(Graph g) {
 		super(g);
@@ -240,6 +241,7 @@ public class DMSTGraph extends Graph {
 	@Override
 	public Iterator<Vertex> iterator() { return new DMSTGraphIterator(this); }
 
+	public Iterator<Vertex> reverseIterator() { return new DMSTReverseGraphIterator(this); }
 	
 	//add change to iterator all new nodes as well.
 	class DMSTGraphIterator implements Iterator<Vertex> {
@@ -248,6 +250,35 @@ public class DMSTGraph extends Graph {
 
 		DMSTGraphIterator(DMSTGraph xg) {
 			this.it = new ArrayIterator<Vertex>(xg.dv, 0, xg.vertexCount-1);  // Iterate over existing elements only
+		}
+
+
+		public boolean hasNext() {
+			if(!it.hasNext()) { return false; }
+			cur = it.next();
+			DMSTVertex dmstv=gh.getVertex(cur);
+			while(dmstv.isDisabled() && it.hasNext()) {
+				cur = it.next();
+				dmstv=gh.getVertex(cur);
+			}
+			return !dmstv.isDisabled();
+		}
+
+		public Vertex next() {
+			return cur;
+		}
+
+		public void remove() {
+		}
+	}
+	
+	
+	class DMSTReverseGraphIterator implements Iterator<Vertex> {
+		Iterator<Vertex> it;
+		Vertex cur;
+
+		DMSTReverseGraphIterator(DMSTGraph xg) {
+			this.it = new ReverseArrayIterator<Vertex>(xg.dv,xg.lastSuperNode.name, 0);  // Iterate over existing elements only
 		}
 
 

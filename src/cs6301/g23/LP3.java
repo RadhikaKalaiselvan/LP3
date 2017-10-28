@@ -64,6 +64,6 @@ public class LP3 {
     	
     	DMSTGraph dg=new DMSTGraph(g); 
     	 MSTUtil m = new MSTUtil(dg);
-    	 return m.mst();	
+    	 return m.mst(dmst);	
     }
 }
