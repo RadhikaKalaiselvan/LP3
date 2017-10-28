@@ -89,7 +89,6 @@ public class Graph implements Iterable<Graph.Vertex> {
 
 	/** Iterator to go through edges out of vertex */
 	public Iterator<Edge> iterator() { 
-		System.out.println("Warning: graph it called !!!!");
 		return adj.iterator(); }
 
 	/** Iterator to go through edges into vertex */

@@ -64,25 +64,6 @@ public class LP3 {
     	
     	DMSTGraph dg=new DMSTGraph(g); 
     	 MSTUtil m = new MSTUtil(dg);
-//    	 ArrayList<HashSet<Vertex>> comp=gu.stronglyConnectedComponents();
-//    	 int k=0;
-//    	 for(HashSet<Vertex> lv: comp){
-//    		System.out.println("key "+k);
-//    		for(Vertex v:lv){
-//    			System.out.println(" "+v);
-//    		}
-//    		k++;
-//    	 }
-//    	 Vertex v = dg.getVertex(5);
-//    	 for(Edge e:v){
-//    		 System.out.println("outgoing Edge"+e);
-//    	 }
-//    	 Iterator<Edge> it=v.reverseIterator();
-//    	 while(it.hasNext()){
-//    		 System.out.println("incoming edge"+it.next());
-//    	 }
-    	 m.mst();
-    	 
-    	 return 0;	
+    	 return m.mst();	
     }
 }

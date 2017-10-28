@@ -20,14 +20,14 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
     int graphSize;
     LinkedList<Graph.Vertex> decFinList;
     ArrayList<HashSet<Vertex>> compList;
-    LinkedList<Graph.Edge> path;
+    HashSet<Graph.Edge> path;
 	GraphUtil(Graph g){
 		super(g);
 		this.g=(DMSTGraph)g;
 		graphSize=g.n;
 		 decFinList=new LinkedList<Graph.Vertex>();
 		 this.compList=new ArrayList<HashSet<Vertex>>();
-		 this.path=new LinkedList<Graph.Edge>();
+		 this.path=new HashSet<Graph.Edge>();
 		 for(Graph.Vertex u: g) {
 			    putVertex(u, new GraphUtilVertex(u));
 			}
@@ -104,7 +104,7 @@ public class GraphUtil extends GraphHash<GraphUtilVertex,Boolean>{
 		return decFinList;
 	}
 	
-	public LinkedList<Edge> getPath(){
+	public HashSet<Edge> getPath(){
 		return path;
 	}
 

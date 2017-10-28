@@ -23,7 +23,7 @@ public class MSTUtil {
 		graphImage=new LinkedList<Vertex>();
 	}
 
-	public void mst(){
+	public int mst(){
 		DMSTVertex dVertex;
 		int tempWeight=0;
 		while(true){
@@ -64,7 +64,19 @@ public class MSTUtil {
 			}
 		}
 		System.out.println("Last super node "+g.getLastSuperNode());
-		expand();
+		g.printKeySet();
+		
+		for(Edge e:gUtil.getPath()){
+			DMSTVertex dv=g.gh.getVertex(e.to);
+			dv.foundIncoming=true;
+			dv.mstEdge=e;
+			System.out.println(" e :"+e.weight+" mstedge "+dv.mstEdge.weight);
+			g.gh.getEdge(e).isInPath=true;
+		}
+		
+		expand(g.getLastSuperNode());
+		g.printKeySet();
+		return getPath(true);
 	}
 
 	public void shrinkComponent(HashSet<Vertex> shrinkComp){
@@ -85,10 +97,12 @@ public class MSTUtil {
 						Edge temp = dest_edge.get(dest);
 						if(g.gh.getEdge(e).getTempWeight() < g.gh.getEdge(temp).getTempWeight()){
 							dest_edge.replace(dest, e);
+							g.disableEdge(e);
 						}
 					}
 					else{
 						dest_edge.put(dest, e);
+						g.disableEdge(e);
 					}
 
 				}
@@ -102,10 +116,12 @@ public class MSTUtil {
 						Edge temp = source_edge.get(source);
 						if(g.gh.getEdge(e).getTempWeight() < g.gh.getEdge(temp).getTempWeight()){
 							source_edge.replace(source, e);
+							g.disableEdge(e);
 						}
 					}
 					else{
 						source_edge.put(source, e);
+						g.disableEdge(e);
 					}
 
 				}
@@ -180,7 +196,6 @@ public class MSTUtil {
 	public void disableAllEdgesOfComp(HashSet<Vertex> hv){
 		for(Vertex v:hv)
 		{
-			System.out.println("Processing "+v);
 			for(Edge e:v.adj){
 				if(!(hv.contains(e.to) && hv.contains(e.from))){
 					System.out.println("disabled "+e);
@@ -196,69 +211,106 @@ public class MSTUtil {
 		}
 	}
 	
-	public void expand(){
-		expandHelper(g.getLastSuperNode());
-	}
+	public void expand(Vertex superNode){
 	
-	public void expandHelper(Vertex superNode){
 	System.out.println("Super node "+superNode);
 		DMSTVertex dmstSuperNode=g.gh.getVertex(superNode);
 		HashSet<Vertex> hv=dmstSuperNode.getComp();
 		if(hv==null|| hv.size()==0 || !g.gh.getVertex(superNode).isSuperNode){
+			System.out.println(" returned ");
 			return;
 		}
-		disableAllEdgesOfComp(hv);
-		
-		LinkedList<Edge> dfsPath=gUtil.getPath();
-		for(Edge e:dfsPath){
-			DMSTEdge de=g.gh.getEdge(e);
-			Edge originalEdgeImage=de.originalEdge;
-			System.out.println(" Processing  "+e+" org "+originalEdgeImage);
-			if(originalEdgeImage!=null){
-			g.gh.getEdge(originalEdgeImage).disabled=false;
-			System.out.println("enabled "+e);
-			
-			Vertex toVert=originalEdgeImage.to;
-			DMSTVertex dtoVertex=g.gh.getVertex(toVert);
-			dtoVertex.disabled=false;
-			
-			if(!dtoVertex.foundIncoming){
-			dtoVertex.foundIncoming=true;
-			dtoVertex.mstEdge=e;
+		Vertex sNode=g.gh.getVertex(superNode);
+		for(Edge e:sNode){
+			DMSTEdge deEdge=g.gh.getEdge(e);
+			if(deEdge.isInPath){
+			Edge orig=deEdge.originalEdge;
+			System.out.println("edge:"+e+" edge image "+orig+" set isInpath");
+			g.enableEdge(orig);
+			g.gh.getEdge(orig).isInPath=true;
+			DMSTVertex u=g.gh.getVertex(orig.to);
+			u.foundIncoming=true;
+			u.mstEdge=orig;
+			System.out.println(" e :"+orig.weight+" mstedge "+u.mstEdge.weight);
 			}
-			
-			g.gh.getVertex(originalEdgeImage.from).disabled=false;
+		}
+		Iterator<Edge> ite=superNode.reverseIterator();
+		while(ite.hasNext()){
+			Edge e=ite.next();
+			DMSTEdge deEdge=g.gh.getEdge(e);
+			if(deEdge.isInPath){
+			Edge orig=deEdge.originalEdge;
+			System.out.println("edge:"+e+" edge image "+orig+" set isInpath");
+			g.enableEdge(orig);
+			g.gh.getEdge(orig).isInPath=true;
+			DMSTVertex u=g.gh.getVertex(orig.to);
+			u.foundIncoming=true;
+			u.mstEdge=orig;
+			System.out.println(" e :"+orig.weight+" mstedge "+u.mstEdge.weight);
 			}
 		}
 		
-		g.gh.getVertex(superNode).disabled=true;
+		g.disableVertex(superNode);
 		
-		g.printKeySet(g);
+		for(Vertex ve:hv){
+			DMSTVertex dv=g.gh.getVertex(ve);
+			System.out.println("Enable vertex ="+ve);
+			g.enableVertex(dv);
+		}
 		
 		Vertex source=takeGraphImage(hv);
+		System.out.println("source for dfs "+source);
 		toggleNodes(true);
-		
 		gUtil.reinitialize();
 		gUtil.dfsVisit(source,new HashSet<Vertex>(),false,false);
-		
-		disableAllEdgesWithinComp(hv);
-		for(Edge e:gUtil.getPath())
+		HashSet<Edge> path=gUtil.getPath();
+		System.out.println("------------------Path------------------");
+		for(Edge p:path){
+			System.out.println(" "+p);
+		}
+		System.out.println("----------------------------------------");
+		for(Vertex v:hv)
 		{
-			g.gh.getEdge(e).disabled=false;
-			Vertex toVert=e.to;
-			DMSTVertex dtoVertex=g.gh.getVertex(toVert);
-			if(!dtoVertex.foundIncoming){
-				dtoVertex.foundIncoming=true;
-				dtoVertex.mstEdge=e;
+			Vertex ver=g.gh.getVertex(v);
+			System.out.println("        vertex :"+v);
+			Iterator<Edge> eit=ver.iterator();
+			while(eit.hasNext()){
+				Edge e=eit.next();
+				System.out.println("second part : edge ="+e);
+				if(path.contains(e)){
+					System.out.println("after dfs : edge:"+e+" edge image  set isInpath");
+					DMSTVertex dv=g.gh.getVertex(e.to);
+					dv.foundIncoming=true;
+					dv.mstEdge=e;
+					System.out.println(" e :"+e.weight+" mstedge "+dv.mstEdge.weight);
+					g.gh.getEdge(e).isInPath=true;
+				} else {
+					if(!g.gh.getEdge(e).isInPath){
+						System.out.println("disabled "+e);
+					g.disableEdge(e);
+					}
 				}
+			}
 		}
 		toggleNodes(false);
-		
-		g.printKeySet(g);
-		expandHelper(source);
+		expand(source);
 	}
 
 
+int getPath(boolean print){
+	int mst=0;
+	for(Vertex v:g){
+		DMSTVertex dv=g.gh.getVertex(v);
+		Edge finalEdge=dv.mstEdge;
+		if(finalEdge!=null && g.gh.getEdge(finalEdge).isInPath){
+		mst+=g.gh.getEdge(finalEdge).weight;
+		}
+		if(print){
+		     System.out.print(" "+dv.mstEdge);
+			}
+	}
+	return mst;
+}
 void disableAllEdgesWithinComp(HashSet<Vertex> hv){
 	Iterator<Vertex> it=hv.iterator();
 	while(it.hasNext()){

@@ -102,6 +102,7 @@ public class DMSTGraph extends Graph {
 		boolean foundIncoming;
 		HashSet<Vertex> comp;
 		
+		
 		public DMSTVertex(Vertex u) {
 			super(u);
 			foundIncoming = false;
@@ -165,7 +166,6 @@ public class DMSTGraph extends Graph {
 				}
 				cur = it.next();	
 				DMSTEdge de=gh.getEdge(cur);
-//				System.out.println(" iterator : edge"+cur+" "+de.isDisabled());
 				while(de.isDisabled() && it.hasNext()) {
 					cur = it.next();
 					de=gh.getEdge(cur);
@@ -195,12 +195,14 @@ public class DMSTGraph extends Graph {
 	}
 	class DMSTEdge extends Edge{
 		public int tempWeight;
+		public boolean isInPath;
 		
 		Edge originalEdge;
 		boolean disabled;
 		public DMSTEdge(Edge e) {
 			super(e);
 			disabled = false;
+			isInPath=false;
 		}
 		DMSTEdge(Vertex from, Vertex to, int weight) {
 			super(from, to, weight);
@@ -226,11 +228,11 @@ public class DMSTGraph extends Graph {
 		}
 	}
 	
-	public void printKeySet(Graph g){
-		for(Vertex v:g){
+	public void printKeySet(){
+		for(Vertex v:this){
 			System.out.println("vertex : "+v+", disabled:"+gh.getVertex(v).disabled);
 			for(Edge e:v){
-				System.out.println("e :      "+e);   
+				System.out.println("e :      "+e+" "+e.weight);   
 			}
 		}
 	}
@@ -268,15 +270,6 @@ public class DMSTGraph extends Graph {
 		}
 	}
 	
-	public int directedMST(DMSTGraph g, Vertex start, List<Edge> dmst){
-		for(Vertex v:g){
-			System.out.println("Vertex = "+v);
-			for(Edge e:v){
-				System.out.println("  edge="+e);
-			}
-		}
-		return 0;
-	}
 	
 }
 
