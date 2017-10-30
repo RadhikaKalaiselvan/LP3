@@ -64,7 +64,16 @@ public class MSTUtil {
 			int k=0;
 //			System.out.println("strongly connected end");
 //			System.out.println("shrink called");
-			if(scc.size()>1){
+			int h=0;
+			for(HashSet<Vertex> hs:scc){
+				h++;
+				if(h>1){
+					break;
+				}
+			}
+			if(h>1){
+		//	if(scc.size()>1){
+//				System.out.println(scc.size()+" - "+h);
 //				for(HashSet<Vertex> lv: scc){
 //					System.out.println("key "+k);
 //					for(Vertex v:lv){
@@ -82,11 +91,12 @@ public class MSTUtil {
 //			System.out.println("shrink call ended");
 			HashSet<Graph.Vertex> dfsVisited = new HashSet<Graph.Vertex>();
 			gUtil.reinitialize();
-			if(g.source==null){
-				g.source=getSource();
-			}
-			gUtil.dfsVisit(g.source, dfsVisited,	false,false);
-			if(dfsVisited.size()==g.enabledVertexCount){  //if all enabled nodes are reachable
+//			if(g.source==null){
+//				g.source=getSource();
+//			}
+			gUtil.dfsVisit(getSource(), dfsVisited,	false,false);
+			if(dfsVisited.size()==g.enabledVertexCount){
+//			if(h==1){  //if all enabled nodes are reachable
 				System.out.println("scc is 1");
 				break;
 			}
@@ -135,7 +145,7 @@ public class MSTUtil {
 					if(dest_edge.containsKey(dest)){
 						Edge temp = dest_edge.get(dest);
 						if(g.gh.getEdge(e).getTempWeight() < g.gh.getEdge(temp).getTempWeight()){
-							dest_edge.replace(dest, e);
+							dest_edge.put(dest, e);
 							g.disableEdge(e);
 						}
 					}
@@ -154,7 +164,7 @@ public class MSTUtil {
 					if(source_edge.containsKey(source)){
 						Edge temp = source_edge.get(source);
 						if(g.gh.getEdge(e).getTempWeight() < g.gh.getEdge(temp).getTempWeight()){
-							source_edge.replace(source, e);
+							source_edge.put(source, e);
 							g.disableEdge(e);
 						}
 					}
@@ -166,7 +176,7 @@ public class MSTUtil {
 				}
 			}
 			g.disableVertex(t);  //disabling the vertex
-			System.out.println("disabled"+t);
+//			System.out.println("disabled"+t);
 		}	
 //		System.out.println("shrinking ends");
 
