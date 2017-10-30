@@ -17,6 +17,7 @@ public class DMSTGraph extends Graph {
 	int enabledVertexCount =0;
 	Vertex source=null;
 	
+	
 	public DMSTGraph(Graph g) {
 		super(g);
 		this.vertexCount=g.n;
@@ -36,6 +37,11 @@ public class DMSTGraph extends Graph {
 				DMSTEdge dedge=new DMSTEdge(x1, x2, e.weight);
 				x1.dadj.add(e);
 				gh.putEdge(e,dedge);
+				if(x2.minWeight>e.weight){
+					x2.minWeight=e.weight;
+//					System.out.println("vertex "+x2+" min wt "+x2.minWeight);
+				}
+				
 			}
 		}
 	}
@@ -56,10 +62,24 @@ public class DMSTGraph extends Graph {
 		enabledVertexCount++;
 	}
 
-
 	public void disableEdge(Edge u){
 		DMSTEdge dmste=gh.getEdge(u);
 		dmste.disabled=true;
+		Vertex to=gh.getVertex(u.to);
+			int min = Integer.MAX_VALUE;
+			Iterator<Edge> edgeIt = to.reverseIterator();
+			while(edgeIt.hasNext()){
+				Edge e = edgeIt.next();
+				DMSTEdge dEdge = gh.getEdge(e);
+				if(dEdge.getTempWeight()==0){
+					min=0;
+					break;
+				}
+				min = Math.min(min, dEdge.getTempWeight());
+				
+			}
+		gh.getVertex(u.to).minWeight=min;
+//		System.out.println("vertex "+u.to+" min wt "+min);
 	}
 
 	public void enableEdge(Edge u){
@@ -91,6 +111,10 @@ public class DMSTGraph extends Graph {
 		x1.dadj.add(e);
 		x2.revAdj.add(e);
 		gh.putEdge(e,dedge);
+		if(x2.minWeight>dedge.tempWeight){
+			x2.minWeight = dedge.tempWeight;
+//			System.out.println("vertex "+x2+" min wt "+x2.minWeight);
+		}
 		return e;
    }
    
@@ -102,6 +126,8 @@ public class DMSTGraph extends Graph {
 		boolean isSuperNode;
 		boolean foundIncoming;
 		HashSet<Vertex> comp;
+		int minWeight;
+		public boolean hasZeroEdge;
 		
 		
 		public DMSTVertex(Vertex u) {
@@ -109,6 +135,7 @@ public class DMSTGraph extends Graph {
 			foundIncoming = false;
 			isSuperNode = false;
 			mstEdge = null;
+			minWeight=Integer.MAX_VALUE;
 			dadj=new LinkedList<Edge>();
 		}
 		public List<Edge> getDadj() {
@@ -237,6 +264,12 @@ public class DMSTGraph extends Graph {
 			}
 		}
 	}
+	void printW(){
+		for(Vertex v:this){
+			System.out.println("vertex v"+v+" = "+gh.getVertex(v).minWeight);
+		}
+	}
+	
 
 	@Override
 	public Iterator<Vertex> iterator() { return new DMSTGraphIterator(this); }
